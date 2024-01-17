@@ -220,7 +220,39 @@ theorem flip_is_nd : (qdr_nd.toQuadrilateral.flip).IsND := ⟨ qdr_nd.nd₁₄.o
 def flip : QuadrilateralND P := mk_nd (flip_is_nd qdr_nd)
 
 /- the simp theorems -/
-variable (A B C D : P)
+variable (A B C D : P) (nd : (QDR A B C D).IsND)
+
+@[simp]
+def edge_nd₁₂_simp : (QDR_nd A B C D nd).edge_nd₁₂ = (SEG_nd A B sorry) := rfl
+@[simp]
+def edge_nd₂₃_simp : (QDR_nd A B C D nd).edge_nd₂₃ = (SEG_nd B C sorry) := rfl
+@[simp]
+def edge_nd₃₄_simp : (QDR_nd A B C D nd).edge_nd₃₄ = (SEG_nd C D sorry) := rfl
+@[simp]
+def edge_nd₁₄_simp : (QDR_nd A B C D nd).edge_nd₁₄ = (SEG_nd A D sorry) := rfl
+
+@[simp]
+def angle₁_simp : (QDR_nd A B C D nd).angle₁ = ANG D A B sorry sorry := rfl
+@[simp]
+def angle₂_simp : (QDR_nd A B C D nd).angle₂ = ANG A B C sorry sorry := rfl
+@[simp]
+def angle₃_simp : (QDR_nd A B C D nd).angle₃ = ANG B C D sorry sorry := rfl
+@[simp]
+def angle₄_simp : (QDR_nd A B C D nd).angle₄ = ANG C D A sorry sorry := rfl
+
+@[simp]
+def triangle₁_simp : (QDR_nd A B C D nd).triangle₁ = TRI D A B := rfl
+@[simp]
+def triangle₂_simp : (QDR_nd A B C D nd).triangle₂ = TRI A B C := rfl
+@[simp]
+def triangle₃_simp : (QDR_nd A B C D nd).triangle₃ = TRI B C D := rfl
+@[simp]
+def triangle₄_simp : (QDR_nd A B C D nd).triangle₄ = TRI C D A := rfl
+
+@[simp]
+def perm_simp : (QDR_nd A B C D nd).perm = (QDR_nd B C D A (perm_is_nd (QDR_nd A B C D nd))) := rfl
+@[simp]
+def flip_simp : (QDR_nd A B C D nd).flip = (QDR_nd A D C B (flip_is_nd (QDR_nd A B C D nd))) := rfl
 
 theorem flip_angle₁_value_eq_neg_angle₁ : qdr_nd.flip.angle₁.value = - qdr_nd.angle₁.value := by
   unfold QuadrilateralND.angle₁
@@ -561,6 +593,28 @@ def triangle_nd₃ : TriangleND P := ⟨qdr_cvx.triangle₃,qdr_cvx.not_collinea
 /--triangle point₃ point₄ point₁, which includes angle₄-/
 @[pp_dot]
 def triangle_nd₄ : TriangleND P := ⟨qdr_cvx.triangle₄,qdr_cvx.not_collinear₃₄₁⟩
+
+/- the simp theorems -/
+variable (A B C D : P) (cvx : (QDR A B C D).IsConvex)
+
+@[simp]
+def perm_simp : (QDR_cvx A B C D cvx).perm = (QDR_cvx B C D A (perm_is_convex (QDR_cvx A B C D cvx))) := rfl
+@[simp]
+def flip_simp : (QDR_cvx A B C D cvx).flip = (QDR_cvx A D C B (flip_is_convex (QDR_cvx A B C D cvx))) := rfl
+
+@[simp]
+def diag_nd₁₃_simp : (QDR_cvx A B C D cvx).diag_nd₁₃ = SEG_nd A C sorry := rfl
+@[simp]
+def diag_nd₂₄_simp : (QDR_cvx A B C D cvx).diag_nd₂₄ = SEG_nd B D sorry := rfl
+
+@[simp]
+def triangle_nd₁_simp : (QDR_cvx A B C D cvx).triangle_nd₁ = TRI_nd D A B sorry := rfl
+@[simp]
+def triangle_nd₂_simp : (QDR_cvx A B C D cvx).triangle_nd₂ = TRI_nd A B C sorry := rfl
+@[simp]
+def triangle_nd₃_simp : (QDR_cvx A B C D cvx).triangle_nd₃ = TRI_nd B C D sorry := rfl
+@[simp]
+def triangle_nd₄_simp : (QDR_cvx A B C D cvx).triangle_nd₄ = TRI_nd C D A sorry := rfl
 
 theorem cclock_eq : qdr_cvx.triangle_nd₁.is_cclock ↔ qdr_cvx.triangle_nd₃.is_cclock := sorry
 
