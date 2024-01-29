@@ -358,14 +358,30 @@ variable {P : Type _} [EuclideanPlane P]
 variable {A B C D : P}
 variable (nd : (QDR A B C D).IsND)
 variable (cvx : (QDR A B C D).IsConvex)
-variable {P : Type _} [EuclideanPlane P] (qdr_cvx : Quadrilateral_cvx P)
-variable {P : Type _} [EuclideanPlane P] (qdr : Quadrilateral P)
+variable (qdr_cvx : Quadrilateral_cvx P)
+variable (qdr : Quadrilateral P)
 
 /-- If edge_nd₁₂ and edge_nd₃₄ of a quadrilateral_cvx are parallel, and so do edge_nd₁₄ and edge_nd₂₃, then it is a parallelogram_nd. -/
-theorem qdrcvx_is_prgND_of_parapara (h₁ : qdr_cvx.IsParaPara) : qdr_cvx.IsPrgND := by sorry
+theorem qdrcvx_is_prgND_iff_parapara : qdr_cvx.IsParaPara ↔ qdr_cvx.IsPrgND := by
+  constructor
+  sorry
+  sorry
 
 /-- If edge_nd₁₂ and edge_nd₃₄ of a quadrilateral_cvx are equal in length, and so do edge_nd₁₄ and edge_nd₂₃, then it is a parallelogram_nd. -/
-theorem qdrcvx_is_prgND_of_eq_length_eq_length (h₁ : qdr_cvx.edge_nd₁₂.length = qdr_cvx.edge_nd₃₄.length) (h₂ : qdr_cvx.edge_nd₁₄.length = qdr_cvx.edge_nd₂₃.length) : qdr_cvx.IsPrgND := by sorry
+theorem qdrcvx_is_prgND_of_eq_length_eq_length (h₁ : qdr_cvx.edge_nd₁₂.length = qdr_cvx.edge_nd₃₄.length) (h₂ : qdr_cvx.edge_nd₁₄.length = qdr_cvx.edge_nd₂₃.length) : qdr_cvx.IsPrgND := by
+  apply (qdrcvx_is_prgND_iff_parapara qdr_cvx).mp
+  unfold Quadrilateral.IsParaPara
+  simp only [dite_true, qdr_cvx.nd]
+  have eq_edge₂: qdr_cvx.triangle_nd₁.edge₂.length = qdr_cvx.triangle_nd₃.edge₂.length := by
+    rw [length_of_rev_eq_length']
+    rfl
+  have eq_edge₃: qdr_cvx.triangle_nd₁.edge₃.length = qdr_cvx.triangle_nd₃.edge₃.length := by
+    rw [length_of_rev_eq_length']
+    exact h₂
+  have tri_congr : qdr_cvx.triangle_nd₁ IsCongrTo qdr_cvx.triangle_nd₃ := TriangleND.congr_of_SSS_of_eq_orientation h₁ eq_edge₂ eq_edge₃ qdr_cvx.cclock_eq
+  constructor
+  sorry
+  sorry
 
 /-- If edge_nd₁₂ and edge_nd₃₄ of a quadrilateral_cvx are not only equal in length but also parallel, then it is a parallelogram_nd. -/
 theorem qdrcvx_is_prgND_of_para_eq_length (h₁ : qdr_cvx.edge_nd₁₂ ∥ qdr_cvx.edge_nd₃₄) (h₂ : qdr_cvx.edge_nd₁₂.length = qdr_cvx.edge_nd₃₄.length) : qdr_cvx.IsPrgND := by sorry
