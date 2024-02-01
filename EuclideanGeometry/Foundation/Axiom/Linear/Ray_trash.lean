@@ -16,6 +16,8 @@ variable {P : Type _} [EuclideanPlane P] (seg_nd : SegND P)
   by the way in_seg shoud be renamed by current naming system
 -/
 
-theorem vec_eq_of_eq_dir_and_eq_length_iff {A B C D : P} (h1 : B ≠ A) (h2 : D ≠ C) : ((SEG_nd A B h1).toDir = (SEG_nd C D h2).toDir) ∧ ((SEG A B).length = (SEG C D).length) ↔ VEC A B = VEC D C := by sorry
+theorem vec_eq_of_eq_dir_and_eq_length_iff {pt₁ pt₂ pt₃ pt₄ : P} (h₁ : pt₂ ≠ pt₁) (h₂ : pt₄ ≠ pt₃) : ((SEG_nd pt₁ pt₂ h₁).toDir = (SEG_nd pt₄ pt₃ h₂.symm).toDir) ∧ ((SEG pt₁ pt₂).length = (SEG pt₃ pt₄).length) ↔ (VEC pt₁ pt₂ = VEC pt₄ pt₃) := by sorry
+
+theorem vec_eq_of_eq_dir_and_eq_length_iff' {pt₁ pt₂ pt₃ pt₄ : P} (h₁ : pt₄ ≠ pt₁) (h₂ : pt₃ ≠ pt₂) : ((SEG_nd pt₁ pt₄ h₁).toDir = (SEG_nd pt₂ pt₃ h₂).toDir) ∧ ((SEG pt₁ pt₄).length = (SEG pt₂ pt₃).length) ↔ (VEC pt₁ pt₄ = VEC pt₂ pt₃) := by sorry
 
 end EuclidGeom

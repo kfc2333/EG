@@ -527,10 +527,8 @@ theorem qdrcvx_is_prgND_of_para_eq_length (h₁ : qdr_cvx.edge_nd₁₂ ∥ qdr_
     -- By transferring the quantities we need into one equation, we close the goal with our target relationship.
     exact neg_eq_iff_eq_neg.mp (id rev_seg_dir_rev.symm)
   -- Proving the property of congruence, like above, we need two sets of edges being equal in length, satisfied trivially.
-  have eq_edge₂: qdr_cvx.triangle_nd₂.1.edge₂.length = qdr_cvx.triangle_nd₄.1.edge₂.length := length_of_rev_eq_length'
-  have eq_edge₃: qdr_cvx.triangle_nd₂.1.edge₃.length = qdr_cvx.triangle_nd₄.1.edge₃.length := h₂
   -- We now have the property of congruence.
-  have tri_congr₂: qdr_cvx.triangle_nd₂ IsCongrTo qdr_cvx.triangle_nd₄ := TriangleND.congr_of_SAS eq_edge₂ eq_angle₁ eq_edge₃
+  have tri_congr₂: qdr_cvx.triangle_nd₂ IsCongrTo qdr_cvx.triangle_nd₄ := TriangleND.congr_of_SAS length_of_rev_eq_length' eq_angle₁ h₂
   -- We can now use this property to prove angles being equal. This pair of equal angles comes straight from tri_congr₂.
   have eq_angle₃: qdr_cvx.triangle_nd₂.angle₃.value = qdr_cvx.triangle_nd₄.angle₃.value := tri_congr₂.angle₃
   -- Angles being equal implies parallel relationships, and we hope qdr_cvx becomes a parallelogram.
@@ -580,8 +578,7 @@ end criteria_prgND_of_qdrcvx
 
 section property
 
-variable {P : Type _} [EuclideanPlane P]
-variable {A B C D : P}
+variable {P : Type _} [EuclideanPlane P] {A B C D : P}
 variable {P : Type _} [EuclideanPlane P] (qdr : Quadrilateral P)
 variable {P : Type _} [EuclideanPlane P] (prg : Parallelogram P)
 
@@ -608,8 +605,6 @@ end property
 
 section property_nd
 
-variable {P : Type _} [EuclideanPlane P]
-variable {A B C D : P}
 variable {P : Type _} [EuclideanPlane P] (qdr : Quadrilateral P)
 variable {P : Type _} [EuclideanPlane P] (prg_nd : ParallelogramND P)
 
@@ -620,16 +615,46 @@ theorem para_of_isPrgND : prg_nd.edge_nd₁₂ ∥ prg_nd.edge_nd₃₄ := (prg_
 theorem para_of_isPrgND' : prg_nd.edge_nd₁₄ ∥ prg_nd.edge_nd₂₃ := (prg_nd.parapara_iff_para_para.mp prg_nd.parapara_of_prgnd).right
 
 /-- The toDirs of edge_nd₁₂ and edge_nd₃₄ of a parallelogram_nd remain reverse. -/
-theorem todir_eq_of_isPrgND : prg_nd.edge_nd₁₂.toDir = - prg_nd.edge_nd₃₄.toDir := by sorry
+theorem todir_eq_of_isPrgND : prg_nd.edge_nd₁₂.toDir = - prg_nd.edge_nd₃₄.toDir := by
+  -- Using the definition of parallelograms, we can find such a vector equation expected for this proof.
+  have eq_vec: VEC prg_nd.point₁ prg_nd.point₂ = VEC prg_nd.point₄ prg_nd.point₃ := prg_nd.is_parallelogram
+  -- Divide the vector equation into a equation of lengths and one of toDirs which we are interested in.
+  apply (vec_eq_of_eq_dir_and_eq_length_iff prg_nd.nd₁₂.out prg_nd.nd₃₄.out).mpr at eq_vec
+  rcases eq_vec with ⟨dir,_⟩
+  -- Translate the language of edges (expected) to segments (which is more operatable). May be simplified?
+  have p₁: prg_nd.edge_nd₁₂.toDir = (SEG_nd prg_nd.point₁ prg_nd.point₂).toDir := by rfl
+  have p₂: prg_nd.edge_nd₃₄.toDir = (SEG_nd prg_nd.point₃ prg_nd.point₄).toDir := by rfl
+  -- Deal with the reverse in segments.
+  have q: (SEG_nd prg_nd.point₄ prg_nd.point₃).reverse = (SEG_nd prg_nd.point₃ prg_nd.point₄) := by simp only [seg_nd_rev]
+  have r: (SEG_nd prg_nd.point₃ prg_nd.point₄).toDir = - (SEG_nd prg_nd.point₄ prg_nd.point₃).toDir := by
+    rw [q.symm]
+    apply ((SEG_nd prg_nd.point₄ prg_nd.point₃).toDir_of_rev_eq_neg_toDir)
+  have r₂: - (SEG_nd prg_nd.point₃ prg_nd.point₄).toDir = (SEG_nd prg_nd.point₄ prg_nd.point₃).toDir := neg_eq_iff_eq_neg.mpr r
+  -- Put the above equations into lemma dir to get the target.
+  rw [p₁.symm, r₂.symm, p₂.symm] at dir
+  exact dir
+  -- Done!
 
 /-- The toDirs of edge_nd₁₄ and edge_nd₂₃ of a parallelogram_nd remain the same. -/
-theorem todir_eq_of_isPrgND' : prg_nd.edge_nd₁₄.toDir = prg_nd.edge_nd₂₃.toDir := by sorry
-
-/-- In a parallelogram_nd, angle₂ and angle₄ are equal. -/
-theorem eq_angle_value_of_isPrgND : prg_nd.angle₂.value = prg_nd.angle₄.value := by sorry
+theorem todir_eq_of_isPrgND' : prg_nd.edge_nd₁₄.toDir = prg_nd.edge_nd₂₃.toDir := by
+  -- Using the second theorem of vectors in parallelograms, we can find such a vector equation expected for this proof.
+  have eq_vec: VEC prg_nd.point₁ prg_nd.point₄ = VEC prg_nd.point₂ prg_nd.point₃ := by rw [← vec_add_vec prg_nd.point₁ prg_nd.point₂ prg_nd.point₄, ← vec_add_vec prg_nd.point₂ prg_nd.point₄ prg_nd.point₃, prg_nd.is_parallelogram, add_comm]
+  -- Divide the vector equation into a equation of lengths and one of toDirs which we are interested in.
+  apply (vec_eq_of_eq_dir_and_eq_length_iff' prg_nd.nd₁₄.out prg_nd.nd₂₃.out).mpr at eq_vec
+  rcases eq_vec with ⟨dir,_⟩
+  -- Deal with the reverse in segments.
+  have p₁: prg_nd.edge_nd₁₄.toDir = (SEG_nd prg_nd.point₁ prg_nd.point₄).toDir := by rfl
+  have p₂: prg_nd.edge_nd₂₃.toDir = (SEG_nd prg_nd.point₂ prg_nd.point₃).toDir := by rfl
+  -- Put the above equations into lemma dir to get the target.
+  rw [p₁.symm, p₂.symm] at dir
+  exact dir
+  --Done!
 
 /-- In a parallelogram_nd, angle₁ and angle₃ are equal. -/
-theorem eq_angle_value_of_isPrgND' : prg_nd.angle₁.value = prg_nd.angle₃.value := by sorry
+theorem eq_angle_value_of_isPrgND : prg_nd.angle₁.value = prg_nd.angle₃.value := by sorry
+
+/-- In a parallelogram_nd, angle₂ and angle₄ are equal. -/
+theorem eq_angle_value_of_isPrgND' : prg_nd.angle₂.value = prg_nd.angle₄.value := by sorry
 
 /-- In a parallelogram_nd the intersection of the two diags is the same as the midpoint of diag₁₃. -/
 theorem eq_midpt_of_diag_inx_of_isPrgND : prg_nd.diag_inx = prg_nd.diag_nd₁₃.midpoint := by sorry
