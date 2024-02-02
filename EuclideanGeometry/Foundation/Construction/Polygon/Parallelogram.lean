@@ -651,10 +651,112 @@ theorem todir_eq_of_isPrgND' : prg_nd.edge_nd₁₄.toDir = prg_nd.edge_nd₂₃
   --Done!
 
 /-- In a parallelogram_nd, angle₁ and angle₃ are equal. -/
-theorem eq_angle_value_of_isPrgND : prg_nd.angle₁.value = prg_nd.angle₃.value := by sorry
+theorem eq_angle_value_of_isPrgND : prg_nd.angle₁.value = prg_nd.angle₃.value := by
+  -- As we are proving two opposite angles in a parallelogram_nd being equal, we are ready to prove triangle_nd₁ and triangle_nd₃ being congruent by SSS.
+  -- Using the definition of parallelograms, we can find such a vector equation expected for this proof.
+  have eq_vec₁: VEC prg_nd.point₁ prg_nd.point₂ = VEC prg_nd.point₄ prg_nd.point₃ := prg_nd.is_parallelogram
+  -- Divide the vector equation into a equation of lengths which we are interested in and one of toDirs.
+  apply (vec_eq_of_eq_dir_and_eq_length_iff prg_nd.nd₁₂.out prg_nd.nd₃₄.out).mpr at eq_vec₁
+  rcases eq_vec₁ with ⟨_, eq_length₁⟩
+  -- Using the second theorem of vectors in parallelograms, we can find such a vector equation expected for this proof.
+  have eq_vec₂: VEC prg_nd.point₁ prg_nd.point₄ = VEC prg_nd.point₂ prg_nd.point₃ := by rw [← vec_add_vec prg_nd.point₁ prg_nd.point₂ prg_nd.point₄, ← vec_add_vec prg_nd.point₂ prg_nd.point₄ prg_nd.point₃, prg_nd.is_parallelogram, add_comm]
+  -- Divide the vector equation into a equation of lengths which we are interested in and one of toDirs.
+  apply (vec_eq_of_eq_dir_and_eq_length_iff' prg_nd.nd₁₄.out prg_nd.nd₂₃.out).mpr at eq_vec₂
+  rcases eq_vec₂ with ⟨_, eq_length₂⟩
+  -- Transfer from segments to edges.
+  have p₁: (prg_nd.edge_nd₁₄).length = (SEG prg_nd.point₁ prg_nd.point₄).length := by rfl
+  have p₂: (prg_nd.edge_nd₂₃).length = (SEG prg_nd.point₂ prg_nd.point₃).length := by rfl
+  rw [p₁.symm, p₂.symm] at eq_length₂
+  have q₁: (prg_nd.edge_nd₁₂).length = (SEG prg_nd.point₁ prg_nd.point₂).length := by rfl
+  have q₂: (prg_nd.edge_nd₃₄).length = (SEG prg_nd.point₃ prg_nd.point₄).length := by rfl
+  rw [q₁.symm, q₂.symm] at eq_length₁
+  have eq_edge₃: prg_nd.triangle_nd₁.edge₃.length = prg_nd.triangle_nd₃.edge₃.length := by
+    rw [length_of_rev_eq_length']
+    exact eq_length₂
+  -- With these facts we can get congruence of the target triangles and the equantion of angle values.
+  have tri_congr : prg_nd.triangle_nd₁ IsCongrTo prg_nd.triangle_nd₃ := TriangleND.congr_of_SSS_of_eq_orientation eq_length₁ length_of_rev_eq_length' eq_edge₃ prg_nd.cclock_eq
+  -- Angle value equation concerning angles in triangles.
+  have eq_angle: prg_nd.triangle_nd₁.angle₂.value = prg_nd.triangle_nd₃.angle₂.value := tri_congr.angle₂
+  -- As the orientation of angles defined in triangles and parallelograms are reverse with respect to each other, we are using angles concerning points to make the translation.
+  -- Translation of angle₂ in triangle_nd₁.
+  have eq_angle₁: prg_nd.triangle_nd₁.angle₂.value = (ANG prg_nd.point₂ prg_nd.point₁ prg_nd.point₄).value := by rfl
+  -- Verify the relationship (a different sign) within angles.
+  have rev_angle₁: (ANG prg_nd.point₂ prg_nd.point₁ prg_nd.point₄).value = - (ANG prg_nd.point₄ prg_nd.point₁ prg_nd.point₂).value := by simp only [Angle.neg_value_eq_rev_ang]
+  -- Translation of angle₁ in prg_nd.
+  have eq_angle₂: prg_nd.angle₁.value = (ANG prg_nd.point₄ prg_nd.point₁ prg_nd.point₂).value := by rfl
+  -- Putting the above relationships in one equation, we make the translation on one side of the target equation.
+  rw [eq_angle₁.symm, eq_angle₂.symm] at rev_angle₁
+  -- Translation of angle₂ in triangle_nd₃.
+  have eq_angle₃: prg_nd.triangle_nd₃.angle₂.value = (ANG prg_nd.point₄ prg_nd.point₃ prg_nd.point₂).value := by rfl
+  -- Verify the relationship (a different sign) within angles.
+  have rev_angle₂: (ANG prg_nd.point₄ prg_nd.point₃ prg_nd.point₂).value = - (ANG prg_nd.point₂ prg_nd.point₃ prg_nd.point₄).value := by simp only [Angle.neg_value_eq_rev_ang]
+  -- Translation of angle₃ in prg_nd.
+  have eq_angle₄: prg_nd.angle₃.value = (ANG prg_nd.point₂ prg_nd.point₃ prg_nd.point₄).value := by rfl
+  -- Putting the above relationships in one equation, we make the translation on the other side of the target equation.
+  rw [eq_angle₃.symm, eq_angle₄.symm] at rev_angle₂
+  -- We now complete the target relationship with one shift into the already known relationship of angle₂ in triangles.
+  rw [rev_angle₁, rev_angle₂] at eq_angle
+  -- Simplify the results and we can close the goal.
+  simp only [neg_inj] at eq_angle
+  exact eq_angle
+  -- Done!
 
 /-- In a parallelogram_nd, angle₂ and angle₄ are equal. -/
-theorem eq_angle_value_of_isPrgND' : prg_nd.angle₂.value = prg_nd.angle₄.value := by sorry
+theorem eq_angle_value_of_isPrgND' : prg_nd.angle₂.value = prg_nd.angle₄.value := by
+  -- As we are proving two opposite angles in a parallelogram_nd being equal, we are ready to prove triangle_nd₁ and triangle_nd₃ being congruent by SSS.
+  -- Using the definition of parallelograms, we can find such a vector equation expected for this proof.
+  have eq_vec₁: VEC prg_nd.point₁ prg_nd.point₂ = VEC prg_nd.point₄ prg_nd.point₃ := prg_nd.is_parallelogram
+  -- Divide the vector equation into a equation of lengths which we are interested in and one of toDirs.
+  apply (vec_eq_of_eq_dir_and_eq_length_iff prg_nd.nd₁₂.out prg_nd.nd₃₄.out).mpr at eq_vec₁
+  rcases eq_vec₁ with ⟨_, eq_length₁⟩
+  -- Using the second theorem of vectors in parallelograms, we can find such a vector equation expected for this proof.
+  have eq_vec₂: VEC prg_nd.point₁ prg_nd.point₄ = VEC prg_nd.point₂ prg_nd.point₃ := by rw [← vec_add_vec prg_nd.point₁ prg_nd.point₂ prg_nd.point₄, ← vec_add_vec prg_nd.point₂ prg_nd.point₄ prg_nd.point₃, prg_nd.is_parallelogram, add_comm]
+  -- Divide the vector equation into a equation of lengths which we are interested in and one of toDirs.
+  apply (vec_eq_of_eq_dir_and_eq_length_iff' prg_nd.nd₁₄.out prg_nd.nd₂₃.out).mpr at eq_vec₂
+  rcases eq_vec₂ with ⟨_, eq_length₂⟩
+  -- Transfer from segments to edges.
+  have p₁: (prg_nd.edge_nd₁₄).length = (SEG prg_nd.point₁ prg_nd.point₄).length := by rfl
+  have p₂: (prg_nd.edge_nd₂₃).length = (SEG prg_nd.point₂ prg_nd.point₃).length := by rfl
+  rw [p₁.symm, p₂.symm] at eq_length₂
+  have q₁: (prg_nd.edge_nd₁₂).length = (SEG prg_nd.point₁ prg_nd.point₂).length := by rfl
+  have q₂: (prg_nd.edge_nd₃₄).length = (SEG prg_nd.point₃ prg_nd.point₄).length := by rfl
+  rw [q₁.symm, q₂.symm] at eq_length₁
+  -- As the definition of edges in parallelograms and triangles are not quite the same, we need this extra translation.
+  have r₁: prg_nd.triangle_nd₂.edge₁.length = (prg_nd.edge_nd₂₃).length := by rfl
+  have r₂: prg_nd.triangle_nd₄.edge₁.length = (SEG_nd prg_nd.point₄ prg_nd.point₁).length := by rfl
+  have r₃: (SEG prg_nd.point₁ prg_nd.point₄).length = (SEG_nd prg_nd.point₄ prg_nd.point₁).length := eq_length_of_isPrg_variant rfl
+  rw [r₃.symm] at r₂
+  -- As a lemma we figure out that edge₁s of the two triangles are equal in length. The latter two conditions are trivial.
+  have eq_edge₁: prg_nd.triangle_nd₂.edge₁.length = prg_nd.triangle_nd₄.edge₁.length := by
+    rw [r₁, r₂]
+    exact eq_length₂.symm
+  -- With these facts we can get congruence of the target triangles and the equantion of angle values.
+  have tri_congr : prg_nd.triangle_nd₂ IsCongrTo prg_nd.triangle_nd₄ := TriangleND.congr_of_SSS_of_eq_orientation eq_edge₁ length_of_rev_eq_length' eq_length₁ prg_nd.cclock_eq'
+  -- Angle value equation concerning angles in triangles.
+  have eq_angle: prg_nd.triangle_nd₂.angle₂.value = prg_nd.triangle_nd₄.angle₂.value := tri_congr.angle₂
+  -- As the orientation of angles defined in triangles and parallelograms are reverse with respect to each other, we are using angles concerning points to make the translation.
+  -- Translation of angle₂ in triangle_nd₂.
+  have eq_angle₁: prg_nd.triangle_nd₂.angle₂.value = (ANG prg_nd.point₃ prg_nd.point₂ prg_nd.point₁).value := by rfl
+  -- Verify the relationship (a different sign) within angles.
+  have rev_angle₁: (ANG prg_nd.point₃ prg_nd.point₂ prg_nd.point₁).value = - (ANG prg_nd.point₁ prg_nd.point₂ prg_nd.point₃).value := by simp only [Angle.neg_value_eq_rev_ang]
+  -- Translation of angle₂ in prg_nd.
+  have eq_angle₂: prg_nd.angle₂.value = (ANG prg_nd.point₁ prg_nd.point₂ prg_nd.point₃).value := by rfl
+  -- Putting the above relationships in one equation, we make the translation on one side of the target equation.
+  rw [eq_angle₁.symm, eq_angle₂.symm] at rev_angle₁
+  -- Translation of angle₂ in triangle_nd₄.
+  have eq_angle₃: prg_nd.triangle_nd₄.angle₂.value = (ANG prg_nd.point₁ prg_nd.point₄ prg_nd.point₃).value := by rfl
+  -- Verify the relationship (a different sign) within angles.
+  have rev_angle₂: (ANG prg_nd.point₁ prg_nd.point₄ prg_nd.point₃).value = - (ANG prg_nd.point₃ prg_nd.point₄ prg_nd.point₁).value := by simp only [Angle.neg_value_eq_rev_ang]
+  -- Translation of angle₄ in prg_nd.
+  have eq_angle₄: prg_nd.angle₄.value = (ANG prg_nd.point₃ prg_nd.point₄ prg_nd.point₁).value := by rfl
+  -- Putting the above relationships in one equation, we make the translation on the other side of the target equation.
+  rw [eq_angle₃.symm, eq_angle₄.symm] at rev_angle₂
+  -- We now complete the target relationship with one shift into the already known relationship of angle₂ in triangles.
+  rw [rev_angle₁, rev_angle₂] at eq_angle
+  -- Simplify the results and we can close the goal.
+  simp only [neg_inj] at eq_angle
+  exact eq_angle
+  -- Done!
 
 /-- In a parallelogram_nd the intersection of the two diags is the same as the midpoint of diag₁₃. -/
 theorem eq_midpt_of_diag_inx_of_isPrgND : prg_nd.diag_inx = prg_nd.diag_nd₁₃.midpoint := by sorry
